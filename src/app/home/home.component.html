@@ -1,0 +1,14 @@
+<po-page-default p-title="Home" [p-actions]="pageActions">
+
+  <div class="content">
+    <full-calendar
+      [options]="calendarOptions"
+    >
+      <ng-template #eventContent let-arg>
+        <b>{{ arg.timeText }}</b>
+        <i>{{ arg.event.title }}</i>
+      </ng-template>
+    </full-calendar>
+  </div>
+
+</po-page-default>

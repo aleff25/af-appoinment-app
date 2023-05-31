@@ -1,0 +1,16 @@
+<po-page-default
+  p-title="New Work"
+  [p-breadcrumb]="breadcrumb"
+  [p-actions]="actions"
+  >
+
+  <po-dynamic-form
+    #dynamicForm
+    p-auto-focus="name"
+    [p-fields]="fields"
+    [p-validate-on-input]="true"
+    [p-value]="createWork"
+  >
+  </po-dynamic-form>
+</po-page-default>
+
