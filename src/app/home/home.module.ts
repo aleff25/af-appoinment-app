@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home.component';
-import { PoPageModule } from '@po-ui/ng-components';
+import { PoMenuModule, PoPageModule, PoToolbarModule } from '@po-ui/ng-components';
 import { HomeRoutingModule } from './home-routing.module';
 import { FullCalendarModule } from '@fullcalendar/angular';
 
@@ -14,6 +14,8 @@ import { FullCalendarModule } from '@fullcalendar/angular';
   imports: [
     CommonModule,
     PoPageModule,
+    PoMenuModule,
+    PoToolbarModule,
     FullCalendarModule,
     HomeRoutingModule
   ]

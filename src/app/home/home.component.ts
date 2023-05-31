@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 
-import { PoPageAction } from '@po-ui/ng-components';
+import { PoMenuItem, PoPageAction } from '@po-ui/ng-components';
 
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -16,6 +16,40 @@ import listPlugin from '@fullcalendar/list';
 export class HomeComponent implements OnInit {
 
   readonly pageActions: Array<PoPageAction> = [];
+
+  menus: Array<PoMenuItem> = [
+    {
+      label: 'Appointments',
+      link: '/appointments',
+      icon: 'po-icon-clock',
+      shortLabel: 'Appointments',
+      badge: { value: 1 }
+    },
+    {
+      label: 'Works',
+      link: '/works',
+      icon: 'po-icon-document-filled',
+      shortLabel: 'Works',
+    },
+    {
+      label: 'Providers',
+      link: '/providers',
+      icon: 'po-icon-users',
+      shortLabel: 'Providers',
+    },
+    {
+      label: 'Customers',
+      link: '/customers',
+      icon: 'po-icon-user',
+      shortLabel: 'Customers',
+    },
+    {
+      label: 'Invoices',
+      link: '/invoices',
+      icon: 'po-icon-sale',
+      shortLabel: 'Invoices',
+    },
+  ];
 
   calendarOptions: CalendarOptions = {
     plugins: [
@@ -61,7 +95,8 @@ export class HomeComponent implements OnInit {
 
   currentEvents: EventApi[] = [];
 
-  constructor(private changeDetector: ChangeDetectorRef) {
+  constructor(
+    private changeDetector: ChangeDetectorRef) {
   }
 
   ngOnInit() { }
@@ -98,5 +133,4 @@ export class HomeComponent implements OnInit {
     this.currentEvents = events;
     this.changeDetector.detectChanges();
   }
-
 }

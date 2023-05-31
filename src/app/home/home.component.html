@@ -1,14 +1,25 @@
-<po-page-default p-title="Home" [p-actions]="pageActions">
+<div class="po-wrapper">
+  <po-menu [p-collapsed]="true" [p-menus]="menus">
+    <div *p-menu-header-template class="po-p-2 po-font-title sample-menu-header-text-color">
+      <p>Welcome,</p>
+      <p>
+        <b> John Doe </b>
+      </p>
+    </div>
+  </po-menu>
 
-  <div class="content">
-    <full-calendar
-      [options]="calendarOptions"
-    >
-      <ng-template #eventContent let-arg>
-        <b>{{ arg.timeText }}</b>
-        <i>{{ arg.event.title }}</i>
-      </ng-template>
-    </full-calendar>
-  </div>
+  <po-page-default p-title="Home" [p-actions]="pageActions">
 
-</po-page-default>
+    <div class="content">
+      <full-calendar
+        [options]="calendarOptions"
+      >
+        <ng-template #eventContent let-arg>
+          <b>{{ arg.timeText }}</b>
+          <i>{{ arg.event.title }}</i>
+        </ng-template>
+      </full-calendar>
+    </div>
+
+  </po-page-default>
+</div>
