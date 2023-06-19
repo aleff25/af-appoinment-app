@@ -1,39 +1,62 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { PoPageAction, PoTableColumn } from '@po-ui/ng-components';
-import { ListProviderService } from '../services/providers/list-provider.service';
+import { PoBreadcrumb, PoDynamicViewField, PoModalComponent } from '@po-ui/ng-components';
+import { PoPageDynamicTableActions, PoPageDynamicTableCustomTableAction } from '@po-ui/ng-templates';
 
 @Component({
   selector: 'app-provider',
   templateUrl: './provider.component.html',
-  styleUrls: ['./provider.component.css'],
-  providers: [
-    ListProviderService
-  ]
+  styleUrls: ['./provider.component.css']
 })
 export class ProviderComponent implements OnInit {
 
-  readonly actions: Array<PoPageAction> = [
-    // actions of table here
+
+  @ViewChild('userDetailModal') userDetailModal!: PoModalComponent;
+
+  readonly apiService = 'http://localhost:9094/users/providers';
+
+  readonly breadcrumb: PoBreadcrumb = {
+    items: [{ label: 'Home', link: '/' }, { label: 'Providers' }]
+  };
+
+  readonly actions: PoPageDynamicTableActions = {
+    new: '/providers/new',
+  };
+
+  readonly detailFields: Array<PoDynamicViewField> = [
+    { property: 'status', tag: true, gridLgColumns: 4, divider: 'Personal Data' },
+    { property: 'name', gridLgColumns: 4 },
   ];
 
-  readonly columns: Array<PoTableColumn> = [
-    // columns of table here
-    { property: 'firstName', label: 'First Name', width: '20%' },
-    { property: 'lastName', label: 'Last Name', width: '35%' },
-    { property: 'email', label: 'Email', width: '35%' },
-    { property: 'phoneNumber', label: 'Phone Number', width: '35%' },
-    { property: 'street', label: 'Street', width: '35%' },
-    { property: 'city', label: 'City', width: '35%' },
-    { property: 'postCode', label: 'Post Code', width: '35%' },
+  tableCustomActions: Array<PoPageDynamicTableCustomTableAction> = [
+    {
+      label: 'Details',
+      action: this.onClickUserDetail.bind(this),
+      disabled: this.isUserInactive.bind(this),
+      icon: 'po-icon-user'
+    },
+    {
+      label: 'Dependents',
+      action: this.onClickUserDetail.bind(this),
+      disabled: this.isUserInactive.bind(this),
+      icon: 'po-icon-user'
+    }
   ];
 
-  items: Array<any> = [];
+  detailedUser: any;
 
-  constructor(private listProviderService: ListProviderService) { }
+  constructor() { }
 
   ngOnInit() {
-    this.listProviderService.list().subscribe((data) => this.items = data);
   }
 
+  isUserInactive(person: any) {
+    return person.status === 'inactive';
+  }
+
+  private onClickUserDetail(user: any) {
+    this.detailedUser = user;
+
+    this.userDetailModal.open();
+  }
 }

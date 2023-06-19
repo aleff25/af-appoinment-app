@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { PoPageAction, PoTableColumn } from '@po-ui/ng-components';
+import { PoBreadcrumb, PoDynamicViewField, PoModalComponent } from '@po-ui/ng-components';
+import { PoPageDynamicTableActions, PoPageDynamicTableCustomTableAction } from '@po-ui/ng-templates';
 
 @Component({
   selector: 'app-invoice',
@@ -9,25 +10,52 @@ import { PoPageAction, PoTableColumn } from '@po-ui/ng-components';
 })
 export class InvoiceComponent implements OnInit {
 
-  readonly actions: Array<PoPageAction> = [
-    // actions of table here
+  @ViewChild('userDetailModal') userDetailModal!: PoModalComponent;
+
+  readonly apiService = 'http://localhost:9094/invoices/all';
+
+  readonly breadcrumb: PoBreadcrumb = {
+    items: [{ label: 'Home', link: '/' }, { label: 'Invoices' }]
+  };
+
+  readonly actions: PoPageDynamicTableActions = {
+    new: '/invoices/new',
+  };
+
+  readonly detailFields: Array<PoDynamicViewField> = [
+    { property: 'status', tag: true, gridLgColumns: 4, divider: 'Personal Data' },
+    { property: 'name', gridLgColumns: 4 },
   ];
 
-  readonly columns: Array<PoTableColumn> = [
-    // columns of table here
-    { property: 'name', width: '50%' },
-    { property: 'age', width: '15%' },
-    { property: 'email', width: '35%' }
+  tableCustomActions: Array<PoPageDynamicTableCustomTableAction> = [
+    {
+      label: 'Details',
+      action: this.onClickUserDetail.bind(this),
+      disabled: this.isUserInactive.bind(this),
+      icon: 'po-icon-user'
+    },
+    {
+      label: 'Dependents',
+      action: this.onClickUserDetail.bind(this),
+      disabled: this.isUserInactive.bind(this),
+      icon: 'po-icon-user'
+    }
   ];
 
-  items: Array<any> = [];
+  detailedUser: any;
 
   constructor() { }
 
   ngOnInit() {
-    this.items = [
-      { name: 'John Doe', age: 33, email: 'johndoe@example.com' }
-    ];
-   }
+  }
 
+  isUserInactive(person: any) {
+    return person.status === 'inactive';
+  }
+
+  private onClickUserDetail(user: any) {
+    this.detailedUser = user;
+
+    this.userDetailModal.open();
+  }
 }

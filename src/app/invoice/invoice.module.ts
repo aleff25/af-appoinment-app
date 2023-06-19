@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InvoiceRoutingModule } from './invoice-routing.module';
 import { InvoiceComponent } from './invoice.component';
-import { PoPageModule, PoTableModule } from '@po-ui/ng-components';
+import { PoBreadcrumbModule, PoButtonModule, PoDynamicModule, PoModalModule, PoPageModule, PoTableModule } from '@po-ui/ng-components';
+import { PoPageDynamicDetailModule, PoPageDynamicTableModule } from '@po-ui/ng-templates';
 
 
 
@@ -11,7 +12,13 @@ import { PoPageModule, PoTableModule } from '@po-ui/ng-components';
   imports: [
     CommonModule,
     PoTableModule,
+    PoButtonModule,
+    PoBreadcrumbModule,
+    PoModalModule,
+    PoDynamicModule,
     PoPageModule,
+    PoPageDynamicTableModule,
+    PoPageDynamicDetailModule,
     InvoiceRoutingModule
   ]
 })

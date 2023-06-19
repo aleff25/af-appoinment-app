@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProviderRoutingModule } from './provider-routing.module';
 import { ProviderComponent } from './provider.component';
-import { PoPageModule, PoTableModule } from '@po-ui/ng-components';
+import { PoBreadcrumbModule, PoDynamicModule, PoModalModule, PoPageModule, PoTableModule } from '@po-ui/ng-components';
+import { PoPageDynamicTableModule } from '@po-ui/ng-templates';
 
 
 
@@ -10,8 +11,11 @@ import { PoPageModule, PoTableModule } from '@po-ui/ng-components';
   declarations: [ProviderComponent],
   imports: [
     CommonModule,
-    PoTableModule,
+    PoBreadcrumbModule,
+    PoModalModule,
+    PoDynamicModule,
     PoPageModule,
+    PoPageDynamicTableModule,
     ProviderRoutingModule
   ]
 })
