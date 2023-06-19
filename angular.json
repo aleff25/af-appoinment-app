@@ -2,6 +2,15 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
+  "assets": [
+    "src/assets",
+    "src/favicon.ico",
+    {
+      "glob": "**\/*",
+      "input": "node_modules/@po-ui/style/images",
+      "output": "assets/images"
+    }
+  ],
   "projects": {
     "af-appoinment-app": {
       "projectType": "application",

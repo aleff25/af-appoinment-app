@@ -1,1 +1,14 @@
-<po-page-login></po-page-login>
+<po-page-login
+  *ngIf="!showPageBlocked"
+  [p-authentication-url]="'http://localhost:9094/login'"
+  [p-exceeded-attempts-warning]="exceededAttempts"
+></po-page-login>
+
+<po-page-blocked-user
+  *ngIf="showPageBlocked"
+  p-contact-email="aesrodriguesoliveira@gmail.com"
+  p-contact-phone="912 801 076"
+  p-logo="https://via.placeholder.com/160x64?text=MAIN+LOGO"
+  p-url-back="http://localhost:9094/login"
+>
+</po-page-blocked-user>
