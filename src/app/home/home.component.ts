@@ -7,11 +7,16 @@ import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import { AppointmentListService } from '../services/appointments/appointment-list.service';
+import { IAppointmentList } from '../core/entities/appointmet/appointmet.interface';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  providers: [
+    AppointmentListService,
+  ]
 })
 export class HomeComponent implements OnInit {
 
@@ -90,16 +95,32 @@ export class HomeComponent implements OnInit {
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
-    eventsSet: this.handleEvents.bind(this)
+    eventsSet: this.handleEvents.bind(this),
   };
 
   currentEvents: EventApi[] = [];
+  appointments: IAppointmentList[] = [];
 
   constructor(
-    private changeDetector: ChangeDetectorRef) {
+    private changeDetector: ChangeDetectorRef,
+    private appointmentListService: AppointmentListService) {
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.appointmentListService.list('2023-05-01T08:00:00', '2023-05-30T21:00:00')
+      .subscribe((data) => {
+        this.appointments = data.items;
+        this.calendarOptions.events = this.appointments.map((appoinment) => {
+            return {
+              id: appoinment.id,
+              title: appoinment.provider.name + ' - ' + appoinment.customer.name,
+              start: appoinment.startDate.toLocaleString(),
+              end: appoinment.endDate.toLocaleString(),
+            }
+        })
+        this.changeDetector.detectChanges();
+      })
+  }
 
   handleWeekendsToggle() {
     const { calendarOptions } = this;
@@ -113,6 +134,8 @@ export class HomeComponent implements OnInit {
     calendarApi.unselect(); // clear date selection
 
     if (title) {
+      console.log(selectInfo);
+
       calendarApi.addEvent({
         id: '2123165498798',
         title,
