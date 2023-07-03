@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home.component';
-import { PoMenuModule, PoPageModule, PoToolbarModule } from '@po-ui/ng-components';
+import { PoDynamicModule, PoMenuModule, PoModalModule, PoPageModule, PoToolbarModule } from '@po-ui/ng-components';
 import { HomeRoutingModule } from './home-routing.module';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { PoPageDynamicDetailModule, PoPageDynamicTableModule } from '@po-ui/ng-templates';
 
 
 
@@ -13,6 +14,8 @@ import { FullCalendarModule } from '@fullcalendar/angular';
   ],
   imports: [
     CommonModule,
+    PoModalModule,
+    PoDynamicModule,
     PoPageModule,
     PoMenuModule,
     PoToolbarModule,

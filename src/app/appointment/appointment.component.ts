@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { PoBreadcrumb, PoDynamicViewField, PoModalComponent } from '@po-ui/ng-components';
+import { PoBreadcrumb, PoDynamicViewField, PoI18nPipe, PoI18nService, PoModalComponent } from '@po-ui/ng-components';
 
 import { PoPageDynamicTableActions, PoPageDynamicTableCustomTableAction } from '@po-ui/ng-templates';
 
@@ -13,6 +13,7 @@ export class AppointmentComponent implements OnInit {
   @ViewChild('userDetailModal') userDetailModal!: PoModalComponent;
 
   detailedUser: any;
+  literals: any = {};
 
   readonly breadcrumb: PoBreadcrumb = {
     items: [{ label: 'Home', link: '/' }, { label: 'Appointments' }]
@@ -26,35 +27,48 @@ export class AppointmentComponent implements OnInit {
   };
 
   readonly detailFields: Array<PoDynamicViewField> = [
-    { property: 'status', tag: true, gridLgColumns: 4, divider: 'Personal Data' },
-    { property: 'name', gridLgColumns: 4 },
+    { property: 'status', label: 'status', tag: true, gridLgColumns: 4, divider: 'Personal Data' },
+    { property: 'name', label: 'name', gridLgColumns: 4 },
     { property: 'nickname', label: 'User name', gridLgColumns: 4 },
-    { property: 'email', gridLgColumns: 4 },
-    { property: 'birthdate', gridLgColumns: 4, type: 'date' },
-    { property: 'genre', gridLgColumns: 4, gridSmColumns: 6 },
+    { property: 'email', label: 'email', gridLgColumns: 4 },
+    { property: 'birthdate', label: 'birthdate', gridLgColumns: 4, type: 'date' },
+    { property: 'genre', label: 'genre', gridLgColumns: 4, gridSmColumns: 6 },
     { property: 'cityName', label: 'City', divider: 'Address' },
-    { property: 'state' },
-    { property: 'country' }
+    { property: 'state', label: 'state' },
+    { property: 'country', label: 'country' }
   ];
 
-  tableCustomActions: Array<PoPageDynamicTableCustomTableAction> = [
-    {
-      label: 'Details',
-      action: this.onClickUserDetail.bind(this),
-      disabled: this.isUserInactive.bind(this),
-      icon: 'po-icon-user'
-    },
-    {
-      label: 'Dependents',
-      action: this.onClickUserDetail.bind(this),
-      disabled: this.isUserInactive.bind(this),
-      icon: 'po-icon-user'
-    }
-  ];
+  tableCustomActions: Array<PoPageDynamicTableCustomTableAction> = [];
 
-  constructor() { }
+  constructor(
+    private poI18nPipe: PoI18nPipe,
+    private poI18nService: PoI18nService,
+  ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.poI18nService.getLiterals()
+      .subscribe((literals) => {
+        this.literals = literals;
+        this.setUp()
+      })
+  }
+
+  private setUp() {
+    this.tableCustomActions = [
+      {
+        label: this.literals.details,
+        action: this.onClickUserDetail.bind(this),
+        disabled: this.isUserInactive.bind(this),
+        icon: 'po-icon-user'
+      },
+      {
+        label: this.literals.dependents,
+        action: this.onClickUserDetail.bind(this),
+        disabled: this.isUserInactive.bind(this),
+        icon: 'po-icon-user'
+      }
+    ]
+  }
 
   isUserInactive(person: any) {
     return person.status === 'inactive';

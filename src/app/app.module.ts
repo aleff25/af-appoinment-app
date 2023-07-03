@@ -4,11 +4,29 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { PoModule } from '@po-ui/ng-components';
+import { PoI18nModule, PoModule } from '@po-ui/ng-components';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { PoTemplatesModule } from '@po-ui/ng-templates';
 import { AppHttpInterceptor } from './app-http.interceptor';
 import { AuthInterceptor } from './auth-http.interceptor';
+import { PoI18nConfig } from '@po-ui/ng-components';
+
+import { generalEn } from '../assets/i18n/translate-en';
+import { generalPt } from '../assets/i18n/translate-pt-br';
+
+const i18nConfig: PoI18nConfig = {
+  contexts: {
+    general: {
+      'pt-BR': generalPt, // constantes em arquivos separados
+      'en-US': generalEn // constantes em arquivos separados
+    },
+  },
+  default: {
+    language: 'pt-BR',
+    context: 'general',
+    cache: true
+  }
+}
 
 @NgModule({
   declarations: [
@@ -21,6 +39,7 @@ import { AuthInterceptor } from './auth-http.interceptor';
     PoModule,
     HttpClientModule,
     PoTemplatesModule,
+    PoI18nModule.config(i18nConfig),
     AppRoutingModule,
   ],
   providers: [

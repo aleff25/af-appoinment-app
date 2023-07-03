@@ -8,6 +8,8 @@
     p-auto-focus="name"
     [p-fields]="fields"
     [p-validate-on-input]="true"
+    [p-validate]="this.onChangeFields.bind(this)"
+    [p-validate-fields]="validateFields"
     [p-value]="createAppointment"
   >
   </po-dynamic-form>

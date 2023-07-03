@@ -1,12 +1,11 @@
-<po-page-list p-title="Customer" [p-actions]="actions">
+<po-page-dynamic-table
+  [p-title]="literals?.customer"
+  [p-actions]="actions"
+  [p-breadcrumb]="breadcrumb"
+  [p-table-custom-actions]="tableCustomActions"
+  [p-service-api]="apiService">
+</po-page-dynamic-table>
 
-  <po-table
-    [p-columns]="columns"
-    [p-container]="'border'"
-    [p-items]="items"
-    [p-height]="400"
-    [p-sort]="true"
-    [p-striped]="true">
-  </po-table>
-
-</po-page-list>
+<po-modal #userDetailModal [p-title]="literals?.customer_detail">
+  <po-dynamic-view [p-fields]="detailFields" [p-value]="detailedUser"> </po-dynamic-view>
+</po-modal>

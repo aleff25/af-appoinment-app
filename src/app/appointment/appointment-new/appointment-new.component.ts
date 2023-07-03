@@ -4,19 +4,28 @@ import { PoBreadcrumb, PoDynamicFormField, PoDynamicFormFieldChanged, PoDynamicF
 import { AppointmentCreateService } from '../../services/appointments/appointment-create.service';
 import { NgForm } from '@angular/forms';
 import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+
+import { parseISO, getHours, getMinutes } from 'date-fns'
+import { CustomersListService } from '../../services/customers/customers-list.service';
+import { ICustomerList } from '../../core/entities/customer/customer.interface';
 
 @Component({
   selector: 'app-appointment-new',
   templateUrl: './appointment-new.component.html',
   styleUrls: ['./appointment-new.component.css'],
-  providers: [AppointmentCreateService]
+  providers: [
+    AppointmentCreateService,
+    CustomersListService
+  ]
 })
 export class AppointmentNewComponent implements OnInit {
 
   @ViewChild('dynamicForm') form!: NgForm;
 
   createAppointment = {};
-  validateFields: Array<string> = ['state'];
+  validateFields: Array<string> = ['newClient'];
+  customers: Array<ICustomerList> = [];
 
   public readonly breadcrumb: PoBreadcrumb = {
     items: [{ label: 'Home', link: '/' }, { label: 'Appointment', link: '/appointments' }, { label: 'New Appointment'}]
@@ -35,37 +44,6 @@ export class AppointmentNewComponent implements OnInit {
 
   fields: Array<PoDynamicFormField> = [
     {
-      property: 'firstName',
-      divider: 'PERSONAL DATA',
-      required: true,
-      minLength: 4,
-      maxLength: 50,
-      gridColumns: 6,
-      gridSmColumns: 12,
-      order: 1,
-      placeholder: 'Type your name'
-    },
-    {
-      property: 'lastName',
-      required: true,
-      minLength: 4,
-      maxLength: 50,
-      gridColumns: 6,
-      gridSmColumns: 12,
-      order: 1,
-      placeholder: 'Type your last name'
-    },
-    {
-      property: 'nif',
-      label: 'NIF',
-      type: 'number',
-      gridColumns: 6,
-      gridSmColumns: 12,
-      minLength: 9,
-      maxLength: 9,
-      optional: true,
-    },
-    {
       property: 'date',
       label: 'Date',
       type: 'date',
@@ -80,6 +58,7 @@ export class AppointmentNewComponent implements OnInit {
       property: 'timeStart',
       gridColumns: 6,
       gridSmColumns: 12,
+      type: 'time',
       label: 'Start Time',
       optional: true,
       fieldValue: 'value',
@@ -90,11 +69,64 @@ export class AppointmentNewComponent implements OnInit {
       property: 'timeEnd',
       gridColumns: 6,
       gridSmColumns: 12,
+      type: 'time',
       label: 'End Time',
       optional: true,
       fieldValue: 'value',
       fieldLabel: 'label',
       options: this.registerService.getAllTimeAvailables(),
+    },
+    {
+      property: 'newClient',
+      label: 'New Client?',
+      gridColumns: 12,
+      gridSmColumns: 12,
+      divider: 'PERSONAL DATA',
+      type: 'boolean',
+      booleanTrue: 'Yes',
+      booleanFalse: 'No',
+    },
+    {
+      property: 'firstName',
+      required: true,
+      minLength: 4,
+      maxLength: 50,
+      gridColumns: 6,
+      gridSmColumns: 12,
+      placeholder: 'Type your name',
+      visible: false
+    },
+    {
+      property: 'lastName',
+      required: true,
+      minLength: 4,
+      maxLength: 50,
+      gridColumns: 6,
+      gridSmColumns: 12,
+      placeholder: 'Type your last name',
+      visible: false
+    },
+    {
+      property: 'customerId',
+      gridColumns: 6,
+      gridSmColumns: 12,
+      label: 'Customer',
+      required: true,
+      format: ['firstName', 'lastName'],
+      fieldLabel: 'firstName',
+      fieldValue: 'id',
+      visible: true,
+      optionsService: 'http://localhost:9094/users/customers',
+    },
+    {
+      property: 'nif',
+      label: 'NIF',
+      type: 'number',
+      gridColumns: 6,
+      gridSmColumns: 12,
+      minLength: 9,
+      maxLength: 9,
+      optional: true,
     },
     {
       property: 'workId',
@@ -109,15 +141,34 @@ export class AppointmentNewComponent implements OnInit {
     },
   ];
 
-  constructor(public poNotification: PoNotificationService,
-    private registerService: AppointmentCreateService,
-    private location: Location) {}
+  constructor(
+    private readonly route: ActivatedRoute,
+    public readonly poNotification: PoNotificationService,
+    private readonly registerService: AppointmentCreateService,
+    private readonly customerService: CustomersListService,
+    private readonly location: Location) {}
 
   ngOnInit() {
-    this.createAppointment = {
-      name: 'Tony Stark',
-      date: '2023-05-29',
-    };
+
+    this.customerService.list().subscribe((data) => this.customers = data.items);
+
+    const {startDate: startDateStr, endDate: endDateStr} = this.route.snapshot.queryParams;
+
+    if(startDateStr) {
+      const startDate = parseISO(startDateStr);
+      const endDate = parseISO(endDateStr);
+
+      this.createAppointment = {
+        date: startDateStr,
+        timeStart: `${getHours(startDate)}:${this.transformMinutes(getMinutes(startDate))}`,
+        timeEnd: `${getHours(endDate)}:${this.transformMinutes(getMinutes(endDate))}`
+      };
+    }
+
+  }
+
+  transformMinutes(minutes: number): string {
+    return minutes == 0 ? '00' : minutes.toString();
   }
 
   back() {
@@ -134,6 +185,47 @@ export class AppointmentNewComponent implements OnInit {
       })
 
     this.form?.reset();
+  }
+
+  onChangeFields(changedValue: PoDynamicFormFieldChanged): PoDynamicFormValidation {
+    if (changedValue.value.newClient) {
+      return {
+        value: { customer: undefined, firstName: undefined, lastName: undefined },
+        fields: [
+          {
+            property: 'customerId',
+            visible: false,
+          },
+          {
+            property: 'firstName',
+            visible: true,
+          },
+          {
+            property: 'lastName',
+            visible: true,
+          }
+        ]
+      };
+
+    } else {
+      return {
+        value: { customerId: undefined, firstName: undefined, lastName: undefined },
+        fields: [
+          {
+            property: 'customerId',
+            visible: true,
+          },
+          {
+            property: 'firstName',
+            visible: false,
+          },
+          {
+            property: 'lastName',
+            visible: false,
+          }
+        ]
+      };
+    }
   }
 
 }

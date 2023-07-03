@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { PoPageAction, PoTableColumn } from '@po-ui/ng-components';
+import { PoBreadcrumb, PoDynamicViewField, PoI18nPipe, PoI18nService, PoModalComponent, PoPageAction, PoTableColumn } from '@po-ui/ng-components';
+import { PoPageDynamicTableActions, PoPageDynamicTableCustomTableAction } from '@po-ui/ng-templates';
 
 @Component({
   selector: 'app-customer',
@@ -9,25 +10,70 @@ import { PoPageAction, PoTableColumn } from '@po-ui/ng-components';
 })
 export class CustomerComponent implements OnInit {
 
-  readonly actions: Array<PoPageAction> = [
-    // actions of table here
+  @ViewChild('userDetailModal') userDetailModal!: PoModalComponent;
+
+  literals: any = {};
+  detailedUser: any;
+  tableCustomActions: Array<PoPageDynamicTableCustomTableAction> = [];
+
+  readonly apiService = 'http://localhost:9094/users/customers';
+
+  breadcrumb: PoBreadcrumb = this.createBreadcrumb();
+
+  readonly actions: PoPageDynamicTableActions = {
+    new: '/customers/new',
+  };
+
+  readonly detailFields: Array<PoDynamicViewField> = [
+    { property: 'status', tag: true, gridLgColumns: 4, divider: 'Personal Data' },
+    { property: 'name', gridLgColumns: 4 },
   ];
 
-  readonly columns: Array<PoTableColumn> = [
-    // columns of table here
-    { property: 'name', width: '50%' },
-    { property: 'age', width: '15%' },
-    { property: 'email', width: '35%' }
-  ];
 
-  items: Array<any> = [];
-
-  constructor() { }
+  constructor(
+    private poI18nPipe: PoI18nPipe,
+    private poI18nService: PoI18nService,
+  ) { }
 
   ngOnInit() {
-    this.items = [
-      { name: 'John Doe', age: 33, email: 'johndoe@example.com' }
-    ];
-   }
+    this.poI18nService.getLiterals()
+      .subscribe((literals) => {
+        this.literals = literals;
+        this.setUp();
+        this.breadcrumb = this.createBreadcrumb();
+      })
+  }
 
+  private setUp() {
+    this.tableCustomActions = [
+      {
+        label: this.literals.details,
+        action: this.onClickUserDetail.bind(this),
+        disabled: this.isUserInactive.bind(this),
+        icon: 'po-icon-user'
+      },
+      {
+        label: this.literals.dependents,
+        action: this.onClickUserDetail.bind(this),
+        disabled: this.isUserInactive.bind(this),
+        icon: 'po-icon-user'
+      }
+    ]
+  }
+
+  isUserInactive(person: any) {
+    return person.status === 'inactive';
+  }
+
+  private onClickUserDetail(user: any) {
+    this.detailedUser = user;
+
+    this.userDetailModal.open();
+  }
+
+  private createBreadcrumb() {
+    return {
+      items: [{ label: this.literals.home, link: '/' }, { label: this.literals.customers }]
+    }
+  }
 }

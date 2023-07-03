@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { CalendarOptions, DateSelectArg, EventApi, EventClickArg } from '@fullcalendar/core';
 
-import { PoMenuItem, PoPageAction } from '@po-ui/ng-components';
+import { PoDynamicViewField, PoMenuItem, PoModalComponent, PoPageAction } from '@po-ui/ng-components';
 
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -9,6 +9,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import { AppointmentListService } from '../services/appointments/appointment-list.service';
 import { IAppointmentList } from '../core/entities/appointmet/appointmet.interface';
+import { ActivatedRoute, Router } from '@angular/router';
+import { format, lastDayOfMonth } from 'date-fns';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +22,18 @@ import { IAppointmentList } from '../core/entities/appointmet/appointmet.interfa
 })
 export class HomeComponent implements OnInit {
 
+  @ViewChild('userDetailModal') userDetailModal!: PoModalComponent;
+
   readonly pageActions: Array<PoPageAction> = [];
+
+  readonly detailFields: Array<PoDynamicViewField> = [
+    { property: 'status', tag: true, gridLgColumns: 4, divider: 'Appointment Data' },
+    { property: 'providerView', label: 'Provider',gridLgColumns: 4 },
+    { property: 'customerView', label: 'Customer', gridLgColumns: 4 },
+    { property: 'startDate', gridLgColumns: 4, type: 'dateTime' },
+    { property: 'endDate', gridLgColumns: 4, type: 'dateTime' },
+    { property: 'workView', label: 'Work', gridLgColumns: 4 },
+  ];
 
   menus: Array<PoMenuItem> = [
     {
@@ -68,7 +81,7 @@ export class HomeComponent implements OnInit {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     },
-    initialView: 'dayGridMonth',
+    initialView: 'timeGridWeek',
     initialEvents:  [
       {
         id: '123456',
@@ -100,14 +113,22 @@ export class HomeComponent implements OnInit {
 
   currentEvents: EventApi[] = [];
   appointments: IAppointmentList[] = [];
+  detailedUser: any;
 
   constructor(
-    private changeDetector: ChangeDetectorRef,
-    private appointmentListService: AppointmentListService) {
+    private readonly router: Router,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly appointmentListService: AppointmentListService) {
   }
 
   ngOnInit() {
-    this.appointmentListService.list('2023-05-01T08:00:00', '2023-05-30T21:00:00')
+
+    const today = new Date()
+    const firstDateOfMonth = format(today, 'yyyy-MM-01') + 'T08:00:00';
+    const lastDateOfMonth = format(lastDayOfMonth(today), 'yyyy-MM-dd') + 'T21:00:00';
+
+    this.appointmentListService.list(firstDateOfMonth, lastDateOfMonth)
       .subscribe((data) => {
         this.appointments = data.items;
         this.calendarOptions.events = this.appointments.map((appoinment) => {
@@ -117,7 +138,7 @@ export class HomeComponent implements OnInit {
               start: appoinment.startDate.toLocaleString(),
               end: appoinment.endDate.toLocaleString(),
             }
-        })
+        });
         this.changeDetector.detectChanges();
       })
   }
@@ -128,28 +149,20 @@ export class HomeComponent implements OnInit {
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    const title = prompt('Please enter a new title for your event');
     const calendarApi = selectInfo.view.calendar;
 
-    calendarApi.unselect(); // clear date selection
+    calendarApi.unselect();
 
-    if (title) {
-      console.log(selectInfo);
-
-      calendarApi.addEvent({
-        id: '2123165498798',
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay
-      });
-    }
+    this.router.navigate(['appointments', 'new'], {queryParams: {startDate: selectInfo.startStr, endDate: selectInfo.endStr}});
   }
 
   handleEventClick(clickInfo: EventClickArg) {
-    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      clickInfo.event.remove();
-    }
+    this.detailedUser = this.appointments.find((a) => a.id === clickInfo.event.id);
+    this.detailedUser.providerView = this.detailedUser.provider.name;
+    this.detailedUser.customerView = this.detailedUser.customer.name;
+    this.detailedUser.workView = this.detailedUser.work.name;
+
+    this.userDetailModal.open();
   }
 
   handleEvents(events: EventApi[]) {
