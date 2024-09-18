@@ -1,0 +1,10 @@
+<!-- src/assets/silent-check-sso.html -->
+<!DOCTYPE html>
+<html>
+<body>
+    <script>
+        // This script tells Keycloak to complete the check session silently.
+        parent.postMessage(location.href, location.origin);
+    </script>
+</body>
+</html>

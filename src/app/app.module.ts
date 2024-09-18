@@ -15,6 +15,7 @@ import { generalEn } from '../assets/i18n/translate-en';
 import { generalPt } from '../assets/i18n/translate-pt-br';
 import { initializeKeycloak } from './init/keycloak-init.factory';
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
+import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 const i18nConfig: PoI18nConfig = {
   contexts: {
@@ -41,11 +42,13 @@ const i18nConfig: PoI18nConfig = {
     PoModule,
     HttpClientModule,
     PoTemplatesModule,
-    KeycloakAngularModule,
     PoI18nModule.config(i18nConfig),
     AppRoutingModule,
+    KeycloakAngularModule,
   ],
   providers: [
+    KeycloakService,
+    { provide: LocationStrategy, useClass: PathLocationStrategy },
     {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,
@@ -61,7 +64,7 @@ const i18nConfig: PoI18nConfig = {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    },
   ],
   bootstrap: [AppComponent]
 })

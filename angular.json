@@ -10,6 +10,7 @@
       "input": "node_modules/@po-ui/style/images",
       "output": "assets/images"
     }
+    
   ],
   "projects": {
     "af-appoinment-app": {
@@ -36,7 +37,8 @@
             "inlineStyleLanguage": "sass",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/assets/silent-check-sso.html"
             ],
             "styles": [
               "./node_modules/@po-ui/style/css/po-theme-default.min.css",
@@ -111,5 +113,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "580031af-47d1-4f00-a55a-f9df777d4a19"
   }
 }

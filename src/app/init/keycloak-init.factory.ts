@@ -2,19 +2,32 @@ import { KeycloakService } from "keycloak-angular";
 
 export function initializeKeycloak(
   keycloak: KeycloakService
-  ) {
-    return () =>
-      keycloak.init({
-        config: {
-          url: 'http://localhost:8090',
-          realm: 'af-scheduler',
-          clientId: 'af-scheduler-app',
-        },
-        initOptions: {
-          onLoad: 'login-required', // redirects to the login page
-          checkLoginIframe: true,
-          checkLoginIframeInterval: 1000,
-        },
-        enableBearerInterceptor: true
+  ) : () => Promise<any> {
+    return (): Promise<any> => {
+      return new Promise<void>(async (resolve, reject) => {
+        try {
+          await keycloak.init({
+            config: {
+              url: 'http://localhost:8080/auth',
+              realm: 'af-appointment-realm',
+              clientId: 'af-appointment-app',
+            },
+            initOptions: {
+              onLoad: 'check-sso',
+              checkLoginIframe: true,
+              silentCheckSsoRedirectUri:
+                window.location.origin + '/assets/silent-check-sso.html'
+            },
+            enableBearerInterceptor: true,
+            bearerExcludedUrls: ['']
+          }).then((isInitialize) => {
+            console.log("keycloak is initialized : ", isInitialize)
+          })
+          resolve();
+        } catch (error) {
+          console.log("error happened during Keycloak initialization : ", error)
+          reject(error);
+        }
       });
+    };
 }

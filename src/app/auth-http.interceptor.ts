@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { catchError, from, Observable, switchMap, throwError } from 'rxjs';
 import { LoginService } from './services/login/login.service';
 import { KeycloakService } from 'keycloak-angular';
 
@@ -9,26 +9,38 @@ import { KeycloakService } from 'keycloak-angular';
 })
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private loginService: LoginService,
-    private keycloakService: KeycloakService) {}
+  constructor(private keycloakService: KeycloakService) {}
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // const isLoginPage = request.url.includes('/login'); // Verificar se é a página de login
-    // if (isLoginPage) {
-    //   // Pular adição de cabeçalho de autorização
-    //   return next.handle(request);
-    // }
+  intercept(
+    request: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    // Defina URLs que você deseja excluir da autenticação
+    const excludedUrls = ['assets/', 'public-api/', '/login'];
 
-    // const token = this.loginService.getToken(); // Substitua pelo token real
+    if (excludedUrls.some((url) => request.url.includes(url))) {
+      return next.handle(request);
+    }
 
-    // // Clonar a solicitação e adicionar o cabeçalho de autorização
-    // const authRequest = request.clone({
-    //   setHeaders: {
-    //     Authorization: `Bearer ${token}`
-    //   }
-    // });
+    if (this.keycloakService.isLoggedIn()) {
+      return from(this.keycloakService.getToken()).pipe(
+        switchMap((token) => {
 
-    // Prosseguir com a solicitação clonada
-    return next.handle(request);
+          if (!token) {
+            return throwError(new Error('Token is null or undefined'));
+          }
+
+          const cloned = request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          return next.handle(cloned);
+        })
+      );
+    } else {
+      // Se o usuário não estiver logado, você pode optar por redirecioná-lo ou permitir a requisição sem o token
+      return next.handle(request);
+    };
   }
 }

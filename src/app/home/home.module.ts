@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home.component';
 import { PoDynamicModule, PoMenuModule, PoModalModule, PoPageModule, PoToolbarModule } from '@po-ui/ng-components';
@@ -21,6 +21,10 @@ import { PoPageDynamicDetailModule, PoPageDynamicTableModule } from '@po-ui/ng-t
     PoToolbarModule,
     FullCalendarModule,
     HomeRoutingModule
+  ],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA,
+    NO_ERRORS_SCHEMA
   ]
 })
 export class HomeModule { }

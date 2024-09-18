@@ -27,8 +27,8 @@
     "@po-ui/ng-components": "^15.8.0",
     "@po-ui/ng-templates": "^15.8.0",
     "date-fns": "^2.30.0",
-    "keycloak-angular": "^14.0.0",
-    "keycloak-js": "^21.1.2",
+    "keycloak-angular": "^16.0.1",
+    "keycloak-js": "^25.0.5",
     "rxjs": "~7.5.5",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"
